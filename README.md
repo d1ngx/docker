@@ -24,10 +24,10 @@ docker run -d -p 80:80 -v /data:/var/www/html kodcloud/kodbox
         ```
 -  使用已有ssl证书
     - 证书格式必须是 fullchain.pem  privkey.pem
-```
-docker run -d -p 443:443  -v "你的证书目录":/etc/nginx/ssl --name kodbox kodcloud/kodbox
-docker exec -it kodbox /usr/bin/private-ssl
-```
+        ```
+        docker run -d -p 443:443  -v "你的证书目录":/etc/nginx/ssl --name kodbox kodcloud/kodbox
+        docker exec -it kodbox /usr/bin/private-ssl
+        ```
 
 # 4.使用docker-compose同时部署数据库
 ```
