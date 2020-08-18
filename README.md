@@ -19,9 +19,9 @@ docker run -d -p 80:80 -v /data:/var/www/html kodcloud/kodbox
         docker exec -it kodbox /usr/bin/letsencrypt-setup
         ```
     - 更新证书
-```
-docker exec -it kodbox /usr/bin/letsencrypt-renew
-```
+        ```
+        docker exec -it kodbox /usr/bin/letsencrypt-renew
+        ```
 -  使用已有ssl证书
     - 证书格式必须是 fullchain.pem  privkey.pem
 ```
