@@ -11,13 +11,13 @@ docker run -d -p 80:80 -v /data:/var/www/html kodcloud/kodbox
 
 -  使用 LetsEncrypt 免费ssl证书
     - 80:80 不能省略
-```
-docker run -d -p 80:80 -p 443:443  -e DOMAIN="你的域名" -e EMAIL="你的邮箱" --name kodbox kodcloud/kodbox
-```
+        ```
+        docker run -d -p 80:80 -p 443:443  -e DOMAIN="你的域名" -e EMAIL="你的邮箱" --name kodbox kodcloud/kodbox
+        ```
     - 生成证书并配置nginx的https
-```
-docker exec -it kodbox /usr/bin/letsencrypt-setup
-```
+        ```
+        docker exec -it kodbox /usr/bin/letsencrypt-setup
+        ```
     - 更新证书
 ```
 docker exec -it kodbox /usr/bin/letsencrypt-renew
