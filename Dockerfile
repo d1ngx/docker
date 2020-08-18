@@ -267,7 +267,8 @@ RUN echo "cgi.fix_pathinfo=1" > ${php_vars} &&\
 
 ADD scripts/letsencrypt-setup /usr/bin/letsencrypt-setup
 ADD scripts/letsencrypt-renew /usr/bin/letsencrypt-renew
-RUN chmod 755 /usr/bin/letsencrypt-setup && chmod 755 /usr/bin/letsencrypt-renew
+ADD scripts/private-ssl /usr/bin/private-ssl
+RUN chmod 755 /usr/bin/letsencrypt-setup && chmod 755 /usr/bin/letsencrypt-renew && chmod 755 /usr/bin/private-ssl
 
 EXPOSE 443 80
 
