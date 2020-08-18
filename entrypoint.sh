@@ -18,4 +18,12 @@ else
         echo "KODBOX has been configured!"
 fi
 
+# check ssl
+if  directory_empty "/etc/nginx/ssl"; then
+        echo "ssl not defined"
+else 
+        ln -s /etc/nginx/sites-available/private-ssl.conf /etc/nginx/sites-enabled/
+fi
+
 exec "$@"
+

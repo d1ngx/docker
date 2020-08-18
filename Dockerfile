@@ -4,11 +4,11 @@ ENV php_conf /usr/local/etc/php-fpm.conf
 ENV fpm_conf /usr/local/etc/php-fpm.d/www.conf
 ENV php_vars /usr/local/etc/php/conf.d/docker-vars.ini
 
+ENV TZ Asia/Shanghai
 ENV KODBOX_VERSION 1.11
 ENV NGINX_VERSION 1.16.1
 ENV LUA_MODULE_VERSION 0.10.14
 ENV DEVEL_KIT_MODULE_VERSION 0.3.0
-ENV GEOIP2_MODULE_VERSION 3.2
 ENV LUAJIT_LIB=/usr/lib
 ENV LUAJIT_INC=/usr/include/luajit-2.1
 
@@ -157,6 +157,8 @@ RUN echo @testing http://nl.alpinelinux.org/alpine/edge/testing >> /etc/apk/repo
     bzip2-dev \
     imap-dev \
     openssl-dev \
+    python3 \
+    python3-dev \
     augeas-dev \
     libressl-dev \
     ca-certificates \
@@ -183,8 +185,7 @@ RUN echo @testing http://nl.alpinelinux.org/alpine/edge/testing >> /etc/apk/repo
     ffmpeg \
     openldap-dev \
     tzdata && \
-    cp /usr/share/zoneinfo/Asia/Shanghai /etc/localtime && \
-    echo "Asia/Shanghai" > /etc/timezone && \
+    cp /usr/share/zoneinfo/$TZ /etc/localtime && echo $TZ > /etc/timezone && \
     docker-php-ext-configure gd \
       --with-freetype \
       --with-jpeg && \
@@ -198,6 +199,9 @@ RUN echo @testing http://nl.alpinelinux.org/alpine/edge/testing >> /etc/apk/repo
     mkdir -p /etc/nginx && \
     mkdir -p /run/nginx && \
     mkdir -p /var/log/supervisor && \
+    pip3 install -U pip && \
+    pip3 install -U certbot && \
+    mkdir -p /etc/letsencrypt/webrootauth && \
     apk del gcc musl-dev linux-headers libffi-dev augeas-dev python3-dev make autoconf tzdata
 #    apk del .sys-deps
 #    ln -s /usr/bin/php7 /usr/bin/php
@@ -233,6 +237,7 @@ chmod -R g=u /var/www
 
 ADD conf/nginx-site.conf /etc/nginx/sites-available/default.conf
 ADD conf/nginx-site-ssl.conf /etc/nginx/sites-available/default-ssl.conf
+ADD conf/private-ssl.conf /etc/nginx/sites-available/private-ssl.conf
 RUN ln -s /etc/nginx/sites-available/default.conf /etc/nginx/sites-enabled/default.conf
 
 # tweak php-fpm config
@@ -259,6 +264,10 @@ RUN echo "cgi.fix_pathinfo=1" > ${php_vars} &&\
         -e "s/listen = 127.0.0.1:9000/listen = \/var\/run\/php-fpm.sock/g" \
         -e "s/^;clear_env = no$/clear_env = no/" \
         ${fpm_conf}
+
+ADD scripts/letsencrypt-setup /usr/bin/letsencrypt-setup
+ADD scripts/letsencrypt-renew /usr/bin/letsencrypt-renew
+RUN chmod 755 /usr/bin/letsencrypt-setup && chmod 755 /usr/bin/letsencrypt-renew
 
 EXPOSE 443 80
 
