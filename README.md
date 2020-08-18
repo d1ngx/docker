@@ -24,3 +24,40 @@ docker exec -it kodbox /usr/bin/letsencrypt-renew
 # 证书格式必须是 fullchain.pem  privkey.pem
 docker run -d -p 80:80 -p 443:443  -v "你的证书目录":/etc/nginx/ssl --name kodbox kodcloud/kodbox
 ```
+# 4.使用docker-compose同时部署数据库
+```
+version: '2'
+
+volumes:
+  kodbox: 
+  db:
+  
+services:
+  db:
+    image: mariadb:10.5.3
+    command: --transaction-isolation=READ-COMMITTED --binlog-format=ROW
+    restart: always
+    volumes:
+      - db:/var/lib/mysql
+    environment:
+      - MYSQL_ROOT_PASSWORD=Kodcloud@2020
+      - MYSQL_PASSWORD=kod_box
+      - MYSQL_DATABASE=kod_box
+      - MYSQL_USER=kod_box
+
+  app:
+    image: kodcloud/kodbox
+    ports:
+      - 80:80
+      - 443:443
+    links:
+      - db
+      - redis
+    volumes:
+      - kodbox:/var/www/html
+    restart: always
+
+  redis:
+    image: redis:alpine3.12
+    restart: always
+```
