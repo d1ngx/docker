@@ -1,18 +1,16 @@
-FROM php:7.4.5-fpm-alpine3.11
+FROM php:7.4.9-fpm-alpine3.11
 
 ENV php_conf /usr/local/etc/php-fpm.conf
 ENV fpm_conf /usr/local/etc/php-fpm.d/www.conf
 ENV php_vars /usr/local/etc/php/conf.d/docker-vars.ini
 
-ENV TZ Asia/Shanghai
 ENV KODBOX_VERSION 1.11
-ENV NGINX_VERSION 1.16.1
+ENV NGINX_VERSION 1.18.0
 ENV LUA_MODULE_VERSION 0.10.14
 ENV DEVEL_KIT_MODULE_VERSION 0.3.0
 ENV LUAJIT_LIB=/usr/lib
 ENV LUAJIT_INC=/usr/include/luajit-2.1
 
-# resolves #166
 ENV LD_PRELOAD /usr/lib/preloadable_libiconv.so php
 RUN apk add --no-cache --repository http://dl-3.alpinelinux.org/alpine/edge/community gnu-libiconv
 
@@ -159,6 +157,7 @@ RUN echo @testing http://nl.alpinelinux.org/alpine/edge/testing >> /etc/apk/repo
     openssl-dev \
     python3 \
     python3-dev \
+    py3-pip \
     augeas-dev \
     libressl-dev \
     ca-certificates \
@@ -185,7 +184,8 @@ RUN echo @testing http://nl.alpinelinux.org/alpine/edge/testing >> /etc/apk/repo
     ffmpeg \
     openldap-dev \
     tzdata && \
-    cp /usr/share/zoneinfo/$TZ /etc/localtime && echo $TZ > /etc/timezone && \
+    cp /usr/share/zoneinfo/Asia/Shanghai /etc/localtime && \
+    echo "Asia/Shanghai" > /etc/timezone && \
     docker-php-ext-configure gd \
       --with-freetype \
       --with-jpeg && \
@@ -239,6 +239,7 @@ ADD conf/nginx-site.conf /etc/nginx/sites-available/default.conf
 ADD conf/nginx-site-ssl.conf /etc/nginx/sites-available/default-ssl.conf
 ADD conf/private-ssl.conf /etc/nginx/sites-available/private-ssl.conf
 RUN ln -s /etc/nginx/sites-available/default.conf /etc/nginx/sites-enabled/default.conf
+ADD conf/setting_user.example /usr/src/kodbox/config/setting_user.example
 
 # tweak php-fpm config
 RUN echo "cgi.fix_pathinfo=1" > ${php_vars} &&\
@@ -267,8 +268,7 @@ RUN echo "cgi.fix_pathinfo=1" > ${php_vars} &&\
 
 ADD scripts/letsencrypt-setup /usr/bin/letsencrypt-setup
 ADD scripts/letsencrypt-renew /usr/bin/letsencrypt-renew
-ADD scripts/private-ssl /usr/bin/private-ssl
-RUN chmod 755 /usr/bin/letsencrypt-setup && chmod 755 /usr/bin/letsencrypt-renew && chmod 755 /usr/bin/private-ssl
+RUN chmod 755 /usr/bin/letsencrypt-setup && chmod 755 /usr/bin/letsencrypt-renew
 
 EXPOSE 443 80
 

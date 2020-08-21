@@ -1,0 +1,42 @@
+version: "3.5"
+
+services:
+  db:
+    image: mariadb:10.5.5
+    command: --transaction-isolation=READ-COMMITTED --binlog-format=ROW
+    container_name: kodbox_db
+    volumes:
+      - "./db:/var/lib/mysql"
+      - "./mysql-init-files:/docker-entrypoint-initdb.d"
+    environment:
+      - "TZ"
+      - "MYSQL_ALLOW_EMPTY_PASSWORD=yes"
+      - "MYSQL_DATABASE"
+      - "MYSQL_USER"
+      - "MYSQL_PASSWORD"
+    restart: always
+
+  app:
+    image: kodcloud/kodbox
+    container_name: kodbox
+    ports:
+      - 80:80
+      - 443:443
+    links:
+      - db
+      - redis
+    volumes:
+      - "./data:/var/www/html"
+      - "./private-ssl:/etc/nginx/ssl"
+    environment:
+      - "MYSQL_SERVER"
+      - "MYSQL_DATABASE"
+      - "MYSQL_USER"
+      - "MYSQL_PASSWORD"
+      - "REDIS_SERVER"
+    restart: always
+
+  redis:
+    image: redis:alpine3.12
+    container_name: kodbox_redis
+    restart: always

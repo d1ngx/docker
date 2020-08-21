@@ -1,4 +1,0 @@
-#!/bin/bash
-
-ln -s /etc/nginx/sites-available/private-ssl.conf /etc/nginx/sites-enabled/
-supervisorctl restart nginx
