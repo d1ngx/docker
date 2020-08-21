@@ -26,32 +26,31 @@ docker run -d -p 80:80 -v /data:/var/www/html kodcloud/kodbox
     - 证书格式必须是 fullchain.pem  privkey.pem
         ```
         docker run -d -p 443:443  -v "你的证书目录":/etc/nginx/ssl --name kodbox kodcloud/kodbox
-        docker exec -it kodbox /usr/bin/private-ssl
         ```
 
-# 4.使用docker-compose同时部署数据库
+# 4.使用docker-compose同时部署数据库(推荐)
 ```
-version: '2'
+version: "3.5"
 
-volumes:
-  kodbox: 
-  db:
-  
 services:
   db:
-    image: mariadb:10.5.3
+    image: mariadb:10.5.5
     command: --transaction-isolation=READ-COMMITTED --binlog-format=ROW
-    restart: always
+    container_name: kodbox_db
     volumes:
-      - db:/var/lib/mysql
+      - "./db:/var/lib/mysql"
+      - "./mysql-init-files:/docker-entrypoint-initdb.d"
     environment:
-      - MYSQL_ROOT_PASSWORD=Kodcloud@2020
-      - MYSQL_PASSWORD=kod_box
-      - MYSQL_DATABASE=kod_box
-      - MYSQL_USER=kod_box
+      - "TZ"
+      - "MYSQL_ALLOW_EMPTY_PASSWORD=yes"
+      - "MYSQL_DATABASE"
+      - "MYSQL_USER"
+      - "MYSQL_PASSWORD"
+    restart: always
 
   app:
     image: kodcloud/kodbox
+    container_name: kodbox
     ports:
       - 80:80
       - 443:443
@@ -59,11 +58,19 @@ services:
       - db
       - redis
     volumes:
-      - kodbox:/var/www/html
+      - "./data:/var/www/html"
+      - "./private-ssl:/etc/nginx/ssl"
+    environment:
+      - "MYSQL_SERVER"
+      - "MYSQL_DATABASE"
+      - "MYSQL_USER"
+      - "MYSQL_PASSWORD"
+      - "REDIS_SERVER"
     restart: always
 
   redis:
     image: redis:alpine3.12
+    container_name: kodbox_redis
     restart: always
 ```
 
