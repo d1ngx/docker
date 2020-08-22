@@ -28,7 +28,9 @@ docker run -d -p 80:80 -v /data:/var/www/html kodcloud/kodbox
         docker run -d -p 443:443  -v "你的证书目录":/etc/nginx/ssl --name kodbox kodcloud/kodbox
         ```
 
-# 4.使用docker-compose同时部署数据库(推荐)
+# [4.使用docker-compose同时部署数据库(推荐)](https://github.com/ericdoomed/docker/tree/master/docker-compose)
+- 把环境变量都写在.env文件中
+- 如果修改.env中数据库名称(MYSQL_DATABASE)，需要同时修改./mysql-init-files/kodbox.sql 首行“use 数据库名称”
 ```
 version: "3.5"
 
