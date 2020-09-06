@@ -4,7 +4,7 @@ ENV php_conf /usr/local/etc/php-fpm.conf
 ENV fpm_conf /usr/local/etc/php-fpm.d/www.conf
 ENV php_vars /usr/local/etc/php/conf.d/docker-vars.ini
 
-ENV KODBOX_VERSION 1.11
+ENV KODBOX_VERSION 1.12
 ENV NGINX_VERSION 1.18.0
 ENV LUA_MODULE_VERSION 0.10.14
 ENV DEVEL_KIT_MODULE_VERSION 0.3.0
@@ -224,6 +224,7 @@ RUN set -ex; \
 	mkdir /usr/src/kodbox; \
     unzip -d /usr/src/kodbox kodbox.zip; \
     cp /usr/bin/unrar /usr/src/kodbox/app/sdks/archiveLib/bin/rar; \
+    sed -i "s/'chunkSize'			=> 0.5,/'chunkSize'			=> 5,/g" /usr/src/kodbox/config/setting.php; \
     apk del .fetch-deps
 
 # nginx site conf

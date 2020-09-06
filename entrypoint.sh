@@ -6,7 +6,33 @@ directory_empty() {
     [ -z "$(ls -A "$1/")" ]
 }
 
-if [ ! -z "$MYSQL_DATABASE" ] && [ ! -z "$MYSQL_USER" ] && [ ! -z "$MYSQL_PASSWORD" ] && [ ! -f "/usr/src/kodbox/config/setting_user.php" ]; then
+file_env() {
+    local var="$1"
+    local fileVar="${var}_FILE"
+    local def="${2:-}"
+    local varValue=$(env | grep -E "^${var}=" | sed -E -e "s/^${var}=//")
+    local fileVarValue=$(env | grep -E "^${fileVar}=" | sed -E -e "s/^${fileVar}=//")
+    if [ -n "${varValue}" ] && [ -n "${fileVarValue}" ]; then
+        echo >&2 "error: both $var and $fileVar are set (but are exclusive)"
+        exit 1
+    fi
+    if [ -n "${varValue}" ]; then
+        export "$var"="${varValue}"
+    elif [ -n "${fileVarValue}" ]; then
+        export "$var"="$(cat "${fileVarValue}")"
+    elif [ -n "${def}" ]; then
+        export "$var"="$def"
+    fi
+    unset "$fileVar"
+}
+
+file_env MYSQL_SERVER
+file_env MYSQL_DATABASE
+file_env MYSQL_USER
+file_env MYSQL_PASSWORD
+file_env REDIS_SERVER
+
+if [ -n "${MYSQL_DATABASE+x}" ] && [ -n "${MYSQL_USER+x}" ] && [ -n "${MYSQL_PASSWORD+x}" ] && [ ! -f "/usr/src/kodbox/config/setting_user.php" ]; then
         cp /usr/src/kodbox/config/setting_user.example /usr/src/kodbox/config/setting_user.php
         sed -i "s/MYSQL_SERVER/${MYSQL_SERVER}/g" /usr/src/kodbox/config/setting_user.php
         sed -i "s/MYSQL_DATABASE/${MYSQL_DATABASE}/g" /usr/src/kodbox/config/setting_user.php
