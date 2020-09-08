@@ -16,7 +16,7 @@ services:
     restart: always
     
   app:
-    image: box:fpm2
+    image: kodcloud/kodbox:v1.12-fpm-alpine
     volumes:
       - "./data:/var/www/html"
     environment:
