@@ -30,7 +30,7 @@ services:
   web:
     image: nginx:1.19.2
     ports:
-      - 8082:80
+      - 80:80
     links:
       - db
       - redis
